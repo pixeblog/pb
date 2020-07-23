@@ -71,22 +71,25 @@ $(canvasGrid).on('mouseup', function (e) {
 var sitesJSON;
 
 
-$(function () {
+//$(function () {
 // Your web app's Firebase configuration
-    var firebaseConfig = {
-        apiKey: "AIzaSyD6rERCynFYx_thhCTYeBvmOe2IibBoT_0",
-        authDomain: "blog-pixels.firebaseapp.com",
-        databaseURL: "https://blog-pixels.firebaseio.com",
-        projectId: "blog-pixels",
-        storageBucket: "blog-pixels.appspot.com",
-        messagingSenderId: "504850275272",
-        appId: "1:504850275272:web:1fa1bfd27dcfea4d42fefd",
-        measurementId: "G-6HFVG0K2R4"
-    };
+var firebaseConfig = {
+    apiKey: "AIzaSyD6rERCynFYx_thhCTYeBvmOe2IibBoT_0",
+    authDomain: "blog-pixels.firebaseapp.com",
+    databaseURL: "https://blog-pixels.firebaseio.com",
+    projectId: "blog-pixels",
+    storageBucket: "blog-pixels.appspot.com",
+    messagingSenderId: "504850275272",
+    appId: "1:504850275272:web:1fa1bfd27dcfea4d42fefd",
+    measurementId: "G-6HFVG0K2R4"
+};
 // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    firebase.analytics();
+firebase.initializeApp(firebaseConfig);
+firebase.analytics();
+populateSelectedPixels();
 
+//});
+function populateSelectedPixels() {
     firebase.database().ref('/users').once('value').then(function (snapshot) {
         sitesJSON = snapshot.val();
 
@@ -110,15 +113,17 @@ $(function () {
         }
     });
 
-
-    firebase.auth().onAuthStateChanged(function (user) {
-        if (user) {
-            onSuccess(user);
-        }
-    });
+}
 
 
+firebase.auth().onAuthStateChanged(function (user) {
+    if (user) {
+        onSuccess(user);
+    }
 });
+
+
+//});
 
 //firebase-ends
 
@@ -291,11 +296,13 @@ function googleSignIn() {
 
 var gUserName;
 var uid;
+var email;
 
 function onSuccess(googleUser) {
 
     gUserName = googleUser.displayName;
     uid = googleUser.uid;
+    email = googleUser.email;
 
 
     $("#google-signin").hide();
@@ -403,8 +410,8 @@ $("#details-form").on("submit", function (event) {
         var rootRef = database.ref("users");
 
         rootRef.child(uid).set({
-             name: gUserName,
-            // numberOfSelectedPixels: localStorage.getItem("numberOfSelectedPixels"),
+            name: gUserName,
+            email: email,
             siteUrl: localStorage.getItem("siteUrl"),
             siteLogo: localStorage.getItem("siteLogo"),
             siteNote: localStorage.getItem("siteNote"),
@@ -414,19 +421,18 @@ $("#details-form").on("submit", function (event) {
         var rootRefPrivate = database.ref("private");
         rootRefPrivate.child(uid).set({
             name: gUserName,
-           //  email: details.payer.email_address,
-           //  payerId: details.payer.payer_id,
-           //  captureId: details.purchase_units[0].payments.captures[0].id,
-           //  amount: details.purchase_units[0].payments.captures[0].amount.value,
-           //  currency_code: details.purchase_units[0].payments.captures[0].amount.currency_code,
+            email: email,
+            //  payerId: details.payer.payer_id,
+            //  captureId: details.purchase_units[0].payments.captures[0].id,
+            //  amount: details.purchase_units[0].payments.captures[0].amount.value,
+            //  currency_code: details.purchase_units[0].payments.captures[0].amount.currency_code,
             numberOfSelectedPixels: localStorage.getItem("numberOfSelectedPixels"),
             siteUrl: localStorage.getItem("siteUrl"),
             siteLogo: localStorage.getItem("siteLogo"),
             siteNote: localStorage.getItem("siteNote"),
             selectedPixels: localStorage.getItem("selectedPixels")
         });
-
-
+        populateSelectedPixels();
         $("#site-details").show();
 
     }
